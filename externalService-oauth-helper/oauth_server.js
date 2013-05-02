@@ -3,7 +3,7 @@ var Fiber = Npm.require('fibers');
 
 Meteor._routePolicy.declare('/_oauth/', 'network');
 
-Accounts.oauth._services = {};
+ExternalService.oauth._services = {};
 
 // Register a handler for an OAuth service. The handler will be called
 // when we get an incoming http request on /_oauth/{serviceName}. This
@@ -19,8 +19,8 @@ Accounts.oauth._services = {};
 //     - {serviceData:, (optional options:)} where serviceData should end
 //       up in the user's services[name] field
 //     - `null` if the user declined to give permissions
-Accounts.oauth.registerService = function (name, version, handleOauthRequest) {
-  if (Accounts.oauth._services[name])
+ExternalService.oauth.registerService = function (name, version, handleOauthRequest) {
+  if (ExternalService.oauth._services[name])
     throw new Error("Already registered the " + name + " OAuth service");
 
   // Accounts.updateOrCreateUserFromExternalService does a lookup by this id,
@@ -30,7 +30,7 @@ Accounts.oauth.registerService = function (name, version, handleOauthRequest) {
   Meteor.users._ensureIndex('services.' + name + '.id',
                             {unique: 1, sparse: 1});
 
-  Accounts.oauth._services[name] = {
+  ExternalService.oauth._services[name] = {
     serviceName: name,
     version: version,
     handleOauthRequest: handleOauthRequest
@@ -39,8 +39,8 @@ Accounts.oauth.registerService = function (name, version, handleOauthRequest) {
 
 // For test cleanup only. (Mongo has a limit as to how many indexes it can have
 // per collection.)
-Accounts.oauth._unregisterService = function (name) {
-  delete Accounts.oauth._services[name];
+ExternalService.oauth._unregisterService = function (name) {
+  delete ExternalService.oauth._services[name];
   var index = {};
   index['services.' + name + '.id'] = 1;
   Meteor.users._dropIndex(index);
@@ -52,17 +52,18 @@ Accounts.oauth._unregisterService = function (name) {
 // method is called. Maps state --> return value of `login`
 //
 // XXX we should periodically clear old entries
-Accounts.oauth._loginResultForState = {};
+ExternalService.oauth._loginResultForState = {};
 
 // Listen to calls to `login` with an oauth option set. This is where
 // users actually get logged in to meteor via oauth.
+// BOO this function should not be in this package
 Accounts.registerLoginHandler(function (options) {
   if (!options.oauth)
     return undefined; // don't handle
 
   check(options.oauth, {state: String});
 
-  if (!_.has(Accounts.oauth._loginResultForState, options.oauth.state)) {
+  if (!_.has(ExternalService.oauth._loginResultForState, options.oauth.state)) {
     // OAuth state is not recognized, which could be either because the popup
     // was closed by the user before completion, or some sort of error where
     // the oauth provider didn't talk to our server correctly and closed the
@@ -75,7 +76,7 @@ Accounts.registerLoginHandler(function (options) {
     throw new Meteor.Error(Accounts.LoginCancelledError.numericError,
                            'No matching login attempt found');
   }
-  var result = Accounts.oauth._loginResultForState[options.oauth.state];
+  var result = ExternalService.oauth._loginResultForState[options.oauth.state];
   if (result instanceof Error)
     // We tried to login, but there was a fatal error. Report it back
     // to the user.
@@ -92,11 +93,11 @@ __meteor_bootstrap__.app
     // calls and nothing else is wrapping this in a fiber
     // automatically
     Fiber(function () {
-      Accounts.oauth._middleware(req, res, next);
+      ExternalService.oauth._middleware(req, res, next);
     }).run();
   });
 
-Accounts.oauth._middleware = function (req, res, next) {
+ExternalService.oauth._middleware = function (req, res, next) {
   // Make sure to catch any exceptions because otherwise we'd crash
   // the runner
   try {
@@ -107,7 +108,7 @@ Accounts.oauth._middleware = function (req, res, next) {
       return;
     }
 
-    var service = Accounts.oauth._services[serviceName];
+    var service = ExternalService.oauth._services[serviceName];
 
     // Skip everything if there's no service set by the oauth middleware
     if (!service)
@@ -117,9 +118,9 @@ Accounts.oauth._middleware = function (req, res, next) {
     ensureConfigured(serviceName);
 
     if (service.version === 1)
-      Accounts.oauth1._handleRequest(service, req.query, res);
+      ExternalService.oauth1._handleRequest(service, req.query, res);
     else if (service.version === 2)
-      Accounts.oauth2._handleRequest(service, req.query, res);
+      ExternalService.oauth2._handleRequest(service, req.query, res);
     else
       throw new Error("Unexpected OAuth version " + service.version);
   } catch (err) {
@@ -131,12 +132,12 @@ Accounts.oauth._middleware = function (req, res, next) {
     // we were passed. But then the developer wouldn't be able to
     // style the error or react to it in any way.
     if (req.query.state && err instanceof Error)
-      Accounts.oauth._loginResultForState[req.query.state] = err;
+      ExternalService.oauth._loginResultForState[req.query.state] = err;
 
     // XXX the following is actually wrong. if someone wants to
     // redirect rather than close once we are done with the OAuth
     // flow, as supported by
-    // Accounts.oauth_renderOauthResults, this will still
+    // ExternalService.oauth_renderOauthResults, this will still
     // close the popup instead. Once we fully support the redirect
     // flow (by supporting that in places such as
     // packages/facebook/facebook_client.js) we should revisit this.
@@ -168,13 +169,14 @@ var oauthServiceName = function (req) {
 };
 
 // Make sure we're configured
+// BOO this should not be in this package
 var ensureConfigured = function(serviceName) {
   if (!Accounts.loginServiceConfiguration.findOne({service: serviceName})) {
     throw new Accounts.ConfigError("Service not configured");
   };
 };
 
-Accounts.oauth._renderOauthResults = function(res, query) {
+ExternalService.oauth._renderOauthResults = function(res, query) {
   // We support ?close and ?redirect=URL. Any other query should
   // just serve a blank page
   if ('close' in query) { // check with 'in' because we don't set a value

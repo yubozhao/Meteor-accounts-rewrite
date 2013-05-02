@@ -51,6 +51,7 @@ Meteor.users = new Meteor.Collection("users", {_preventAutopublish: true});
 
 // Table containing documents with configuration options for each
 // login service
+// BOO this should be ExternalService.serviceConfiguration
 Accounts.loginServiceConfiguration = new Meteor.Collection(
   "meteor_accounts_loginServiceConfiguration", {_preventAutopublish: true});
 // Leave this collection open in insecure mode. In theory, someone could

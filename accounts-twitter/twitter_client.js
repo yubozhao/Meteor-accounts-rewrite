@@ -12,6 +12,8 @@ Meteor.loginWithTwitter = function (options, callback) {
     return;
   }
 
+  console.log('logging in with twitter')
+
   var state = Random.id();
   // We need to keep state across the next two 'steps' so we're adding
   // a state parameter to the url and the callback url that we'll be returned

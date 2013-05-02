@@ -4,6 +4,7 @@ Package.describe({
 });
 
 Package.on_use(function (api) {
+	// BOO should not be requireing accounts-base here
   api.use('accounts-base', ['client', 'server']);
   api.use('routepolicy', 'server');
 
