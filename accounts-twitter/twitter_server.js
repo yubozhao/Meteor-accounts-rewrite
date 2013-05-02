@@ -11,7 +11,7 @@ Accounts.addAutopublishFields({
   forOtherUsers: autopublishedFields
 });
 
-Accounts.oauth.registerService('twitter', 1, function(oauthBinding) {
+ExternalService.oauth.registerService('twitter', 1, function(oauthBinding) {
   var identity = oauthBinding.get('https://api.twitter.com/1.1/account/verify_credentials.json').data;
 
   var serviceData = {

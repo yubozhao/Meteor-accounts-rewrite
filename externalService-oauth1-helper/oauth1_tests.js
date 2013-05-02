@@ -19,7 +19,7 @@ Tinytest.add("oauth1 - loginResultForState is stored", function (test) {
 
   try {
     // register a fake login service
-    Accounts.oauth.registerService(serviceName, 1, function (query) {
+    ExternalService.oauth.registerService(serviceName, 1, function (query) {
       return {
         serviceData: {
           id: twitterfooId,
@@ -31,7 +31,7 @@ Tinytest.add("oauth1 - loginResultForState is stored", function (test) {
     });
 
     // simulate logging in using twitterfoo
-    Accounts.oauth1._requestTokens[state] = twitterfooAccessToken;
+    ExternalService.oauth1._requestTokens[state] = twitterfooAccessToken;
 
     var req = {
       method: "POST",
@@ -41,7 +41,7 @@ Tinytest.add("oauth1 - loginResultForState is stored", function (test) {
         oauth_token: twitterfooAccessToken
       }
     };
-    Accounts.oauth._middleware(req, new http.ServerResponse(req));
+    ExternalService.oauth._middleware(req, new http.ServerResponse(req));
 
     // verify that a user is created
     var selector = {};
@@ -60,11 +60,11 @@ Tinytest.add("oauth1 - loginResultForState is stored", function (test) {
 
     // and that the login result for that user is prepared
     test.equal(
-      Accounts.oauth._loginResultForState[state].id, user._id);
+      ExternalService.oauth._loginResultForState[state].id, user._id);
     test.equal(
-      Accounts.oauth._loginResultForState[state].token, token);
+      ExternalService.oauth._loginResultForState[state].token, token);
   } finally {
-    Accounts.oauth._unregisterService(serviceName);
+    ExternalService.oauth._unregisterService(serviceName);
   }
 });
 
@@ -82,11 +82,11 @@ Tinytest.add("oauth1 - error in user creation", function (test) {
   Accounts[serviceName] = {};
 
   // Wire up access token so that verification passes
-  Accounts.oauth1._requestTokens[state] = twitterfailAccessToken;
+  ExternalService.oauth1._requestTokens[state] = twitterfailAccessToken;
 
   try {
     // register a failing login service
-    Accounts.oauth.registerService(serviceName, 1, function (query) {
+    ExternalService.oauth.registerService(serviceName, 1, function (query) {
       return {
         serviceData: {
           id: twitterfailId,
@@ -117,7 +117,7 @@ Tinytest.add("oauth1 - error in user creation", function (test) {
       }
     };
 
-    Accounts.oauth._middleware(req, new http.ServerResponse(req));
+    ExternalService.oauth._middleware(req, new http.ServerResponse(req));
 
     // verify that a user is not created
     var selector = {};
@@ -126,14 +126,14 @@ Tinytest.add("oauth1 - error in user creation", function (test) {
     test.equal(user, undefined);
 
     // verify an error is stored in login state
-    test.equal(Accounts.oauth._loginResultForState[state].error, 403);
+    test.equal(ExternalService.oauth._loginResultForState[state].error, 403);
 
     // verify error is handed back to login method.
     test.throws(function () {
       Meteor.apply('login', [{oauth: {version: 1, state: state}}]);
     });
   } finally {
-    Accounts.oauth._unregisterService(serviceName);
+    ExternalService.oauth._unregisterService(serviceName);
   }
 });
 

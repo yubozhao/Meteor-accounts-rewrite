@@ -6,7 +6,7 @@ Accounts.addAutopublishFields({
   forOtherUsers: ['services.github.username']
 });
 
-Accounts.oauth.registerService('github', 2, function(query) {
+ExternalService.oauth.registerService('github', 2, function(query) {
 
   var accessToken = getAccessToken(query);
   var identity = getIdentity(accessToken);

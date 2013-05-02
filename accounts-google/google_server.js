@@ -18,7 +18,7 @@ Accounts.addAutopublishFields({
     function (subfield) { return 'services.google.' + subfield; })
 });
 
-Accounts.oauth.registerService('google', 2, function(query) {
+ExternalService.oauth.registerService('google', 2, function(query) {
 
   var response = getTokens(query);
   var accessToken = response.accessToken;

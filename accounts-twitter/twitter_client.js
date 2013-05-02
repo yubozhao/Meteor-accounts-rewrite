@@ -29,5 +29,5 @@ Meteor.loginWithTwitter = function (options, callback) {
         + encodeURIComponent(callbackUrl)
         + '&state=' + state;
 
-  Accounts.oauth.initiateLogin(state, url, callback);
+  ExternalService.oauth.initiateLogin(state, url, callback);
 };

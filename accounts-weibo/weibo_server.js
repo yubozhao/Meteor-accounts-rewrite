@@ -5,7 +5,7 @@ Accounts.addAutopublishFields({
   forOtherUsers: ['services.weibo.screenName']
 });
 
-Accounts.oauth.registerService('weibo', 2, function(query) {
+ExternalService.oauth.registerService('weibo', 2, function(query) {
 
   var response = getTokenResponse(query);
   var uid = parseInt(response.uid, 10);

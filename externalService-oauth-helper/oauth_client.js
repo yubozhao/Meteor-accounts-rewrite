@@ -30,6 +30,7 @@ ExternalService.oauth.initiateLogin = function(state, url, callback, dimensions)
 // Send an OAuth login method to the server. If the user authorized
 // access in the popup this should log the user in, otherwise
 // nothing should happen.
+// 
 // BOO we should replace this with the general callback
 var tryLoginAfterPopupClosed = function(state, callback) {
   Accounts.callLoginMethod({

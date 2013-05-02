@@ -7,7 +7,7 @@ Accounts.addAutopublishFields({
 });
 
 
-Accounts.oauth.registerService('meetup', 2, function(query) {
+ExternalService.oauth.registerService('meetup', 2, function(query) {
 
   var accessToken = getAccessToken(query);
   var identity = getIdentity(accessToken);

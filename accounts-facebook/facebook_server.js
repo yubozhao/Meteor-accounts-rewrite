@@ -12,7 +12,7 @@ Accounts.addAutopublishFields({
   ]
 });
 
-Accounts.oauth.registerService('facebook', 2, function(query) {
+ExternalService.oauth.registerService('facebook', 2, function(query) {
 
   var response = getTokenResponse(query);
   var accessToken = response.accessToken;

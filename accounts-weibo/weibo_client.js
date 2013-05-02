@@ -21,5 +21,5 @@ Meteor.loginWithWeibo = function (options, callback) {
         '&redirect_uri=' + Meteor.absoluteUrl('_oauth/weibo?close', {replaceLocalhost: true}) +
         '&state=' + state;
 
-  Accounts.oauth.initiateLogin(state, loginUrl, callback);
+  ExternalService.oauth.initiateLogin(state, loginUrl, callback);
 };

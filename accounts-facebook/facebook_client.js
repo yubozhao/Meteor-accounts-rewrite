@@ -24,5 +24,5 @@ Meteor.loginWithFacebook = function (options, callback) {
         '&redirect_uri=' + Meteor.absoluteUrl('_oauth/facebook?close') +
         '&display=' + display + '&scope=' + scope + '&state=' + state;
 
-  Accounts.oauth.initiateLogin(state, loginUrl, callback);
+  ExternalService.oauth.initiateLogin(state, loginUrl, callback);
 };

@@ -35,5 +35,5 @@ Meteor.loginWithGoogle = function (options, callback) {
         '&state=' + state +
         '&access_type=' + accessType;
 
-  Accounts.oauth.initiateLogin(state, loginUrl, callback);
+  ExternalService.oauth.initiateLogin(state, loginUrl, callback);
 };

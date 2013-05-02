@@ -56,6 +56,7 @@ ExternalService.oauth._loginResultForState = {};
 
 // Listen to calls to `login` with an oauth option set. This is where
 // users actually get logged in to meteor via oauth.
+// 
 // BOO this function should not be in this package
 Accounts.registerLoginHandler(function (options) {
   if (!options.oauth)
@@ -169,6 +170,7 @@ var oauthServiceName = function (req) {
 };
 
 // Make sure we're configured
+// 
 // BOO this should not be in this package
 var ensureConfigured = function(serviceName) {
   if (!Accounts.loginServiceConfiguration.findOne({service: serviceName})) {

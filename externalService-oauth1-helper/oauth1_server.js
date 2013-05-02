@@ -58,5 +58,5 @@ ExternalService.oauth1._handleRequest = function (service, query, res) {
 
   // Either close the window, redirect, or render nothing
   // if all else fails
-  Accounts.oauth._renderOauthResults(res, query);
+  ExternalService.oauth._renderOauthResults(res, query);
 };

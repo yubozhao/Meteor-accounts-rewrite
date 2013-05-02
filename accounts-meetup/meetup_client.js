@@ -28,6 +28,6 @@ Meteor.loginWithMeetup = function (options, callback) {
   if (_.without(scope, 'basic').length)
     height += 130;
 
-  Accounts.oauth.initiateLogin(state, loginUrl, callback,
+  ExternalService.oauth.initiateLogin(state, loginUrl, callback,
                                {width: 900, height: height});
 };
