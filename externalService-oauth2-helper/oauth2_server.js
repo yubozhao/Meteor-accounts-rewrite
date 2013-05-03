@@ -8,6 +8,7 @@ ExternalService.oauth2._handleRequest = function (service, query, res) {
     // Run service-specific handler.
     var oauthResult = service.handleOauthRequest(query);
 
+    console.log("BOO inside oauth2 handlerequest", query);
     // Get or create user doc and login token for reconnect.
     ExternalService.oauth._loginResultForState[query.state] =
       Accounts.updateOrCreateUserFromExternalService(

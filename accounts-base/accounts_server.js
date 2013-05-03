@@ -48,6 +48,13 @@ Accounts._loginHandlers = [];
 // return `undefined`, meaning it handled this call to `login`. Return
 // that return value, which ought to be a {id/token} pair.
 var tryAllLoginHandlers = function (options) {
+  console.log("BOO the user id is ", Meteor.userId());
+  if (Meteor.userId()) {
+    console.log ("BOO have existing user, add user id");
+    options.userId = Meteor.userId();
+  } else {
+    options.userId = '';
+  }
   for (var i = 0; i < Accounts._loginHandlers.length; ++i) {
     var handler = Accounts._loginHandlers[i];
     var result = handler(options);
@@ -241,7 +248,7 @@ Accounts.updateOrCreateUserFromExternalService = function(
   } else {
     selector[serviceIdKey] = serviceData.id;
   }
-
+  console.log("BOO selector before server find users.  in updateOrCreateUserFromExternalService", selector);
   var user = Meteor.users.findOne(selector);
   console.log("Inside(server) Accounts.updateOrCreateUserFromExternalService:  ", user);
   if (user) {

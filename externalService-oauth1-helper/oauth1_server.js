@@ -49,6 +49,7 @@ ExternalService.oauth1._handleRequest = function (service, query, res) {
       // Run service-specific handler.
       var oauthResult = service.handleOauthRequest(oauthBinding);
 
+      console.log("BOO oauth1 query inside _handleRequest before call _loginResultForState", query);
       // Get or create user doc and login token for reconnect.
       ExternalService.oauth._loginResultForState[query.state] =
         Accounts.updateOrCreateUserFromExternalService(

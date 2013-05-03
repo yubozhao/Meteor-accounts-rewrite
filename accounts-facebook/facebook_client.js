@@ -1,10 +1,10 @@
 Meteor.loginWithFacebook = function (options, callback) {
   // support both (options, callback) and (callback).
+  console.log("BOO in facebook client: ", options, " ", callback);
   if (!callback && typeof options === 'function') {
     callback = options;
     options = {};
   }
-
   var config = Accounts.loginServiceConfiguration.findOne({service: 'facebook'});
   if (!config) {
     callback && callback(new Accounts.ConfigError("Service not configured"));

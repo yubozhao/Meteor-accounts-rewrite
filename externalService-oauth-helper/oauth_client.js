@@ -11,6 +11,9 @@ ExternalService.oauth.initiateLogin = function(state, url, callback, dimensions)
   // XXX these dimensions worked well for facebook and google, but
   // it's sort of weird to have these here. Maybe an optional
   // argument instead?
+  
+  console.log("BOO initiateLogin from externalservice.oauth state: ", state, " url: ", url);
+  
   var popup = openCenteredPopup(
     url,
     (dimensions && dimensions.width) || 650,

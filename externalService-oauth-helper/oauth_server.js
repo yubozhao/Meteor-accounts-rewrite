@@ -59,6 +59,8 @@ ExternalService.oauth._loginResultForState = {};
 // 
 // BOO this function should not be in this package
 Accounts.registerLoginHandler(function (options) {
+  //BOO  already passed in user ID if we have them
+  console.log("BOO lets see what is in here", options);
   if (!options.oauth)
     return undefined; // don't handle
 
@@ -83,6 +85,7 @@ Accounts.registerLoginHandler(function (options) {
     // to the user.
     throw result;
   else
+    console.log("BOO result after _loginResultForState ", result);
     return result;
 });
 
