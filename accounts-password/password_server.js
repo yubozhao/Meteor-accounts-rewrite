@@ -134,6 +134,39 @@ Accounts.registerLoginHandler(function (options) {
   return {token: stampedLoginToken.token, id: user._id};
 });
 
+///
+/// LINK EMAIL/PASSWORD TO EXISTING USER
+///
+
+// BOO
+Accounts.registerLinkHandler(function (userId, options) {
+  if (!options.srp)
+    return undefined; // don't handle
+  
+  check(options, {username: Match.Optional(String), email: Match.Optional(String), srp: Match.Optional(Meteor._srp.matchVerifier)});
+
+  var user = Meteor.users.findOne(userId);
+  // Was the user deleted since the start of this challenge?
+  if (!user)
+    throw new Meteor.Error(403, "User not found");
+
+  var updates = {
+    $push: {'services.resume.loginTokens': stampedLoginToken}, 
+    $set: {'services.password': {srp: options.srp } }
+  };
+
+  if (options.username) {
+    updates.$set.username = options.username;
+  }
+  if (options.email) {
+    updates.$push.emails = [{address: options.email, verified: false}];
+  }
+
+  var stampedLoginToken = Accounts._generateStampedLoginToken();
+  Meteor.users.update( userId, updates );
+
+  return {token: stampedLoginToken.token, id: userId };
+});
 
 ///
 /// CHANGING

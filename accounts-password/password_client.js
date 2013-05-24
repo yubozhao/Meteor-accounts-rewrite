@@ -43,6 +43,26 @@ Meteor.loginWithPassword = function (selector, password, callback) {
   });
 };
 
+//BOO
+Meteor.linkWithPassword = function (selector, password, callback) {
+  var verifier = Meteor._srp.generateVerifier(password);
+  var options = {srp: verifier};
+
+  if (typeof selector === 'string')
+    if (selector.indexOf('@') === -1)
+      options.username = selector;
+    else
+      options.email = selector;
+
+  Accounts.callLinkMethod({
+    methodArguments: [options],
+    validateResult: function (result) {
+      if (!srp.verifyConfirmation({HAMK: result.HAMK}))
+        throw new Error("Server is cheating!");
+    },
+    userCallback: callback});
+};
+
 
 // Attempt to log in as a new user.
 Accounts.createUser = function (options, callback) {

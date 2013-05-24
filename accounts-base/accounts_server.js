@@ -106,7 +106,6 @@ Meteor.methods({
 
   link: function(options) {
     console.log('called link with ', options);
-    throw new Meteor.Error(500, "I'm invisible!");
     check(options, Object);
     var userId = Meteor.userId();
     if(null == userId){
