@@ -48,13 +48,6 @@ Accounts._loginHandlers = [];
 // return `undefined`, meaning it handled this call to `login`. Return
 // that return value, which ought to be a {id/token} pair.
 var tryAllLoginHandlers = function (options) {
-  console.log("BOO the user id is ", Meteor.userId());
-  if (Meteor.userId()) {
-    console.log ("BOO have existing user, add user id");
-    options.userId = Meteor.userId();
-  } else {
-    options.userId = '';
-  }
   for (var i = 0; i < Accounts._loginHandlers.length; ++i) {
     var handler = Accounts._loginHandlers[i];
     var result = handler(options);
@@ -63,6 +56,30 @@ var tryAllLoginHandlers = function (options) {
   }
 
   throw new Meteor.Error(400, "Unrecognized options for login request");
+};
+
+///
+/// LINK HANDLERS
+/// BOO
+
+Accounts.registerLinkHandler = function(handler) {
+  Accounts._linkHandlers.push(handler);
+};
+
+// list of all registered link handlers.
+Accounts._linkHandlers = [];
+
+// BOO Currently we only really have one real link handler
+// that just adds the service info to the user
+var tryAllLinkHandlers = function (userId, options) {
+  for (var i = 0; i < Accounts._linkHandlers.length; ++i) {
+    var handler = Accounts._linkHandlers[i];
+    var result = handler(userId, options);
+    if (result !== undefined)
+      return result;
+  }
+
+  throw new Meteor.Error(400, "Unrecognized options for link request");
 };
 
 
@@ -85,6 +102,20 @@ Meteor.methods({
 
   logout: function() {
     this.setUserId(null);
+  },
+
+  link: function(options) {
+    console.log('called link with ', options);
+    throw new Meteor.Error(500, "I'm invisible!");
+    check(options, Object);
+    var userId = Meteor.userId();
+    if(null == userId){
+      throw new Meteor.Error(90000, "You must be logged into an existing account to link a 3rd party service.");
+    }
+    var result = tryAllLinkHandlers(userId, options);
+    if (result !== null)
+      console.log("yay!");
+    return result;
   }
 });
 
@@ -248,9 +279,9 @@ Accounts.updateOrCreateUserFromExternalService = function(
   } else {
     selector[serviceIdKey] = serviceData.id;
   }
-  console.log("BOO selector before server find users.  in updateOrCreateUserFromExternalService", selector);
+
   var user = Meteor.users.findOne(selector);
-  console.log("Inside(server) Accounts.updateOrCreateUserFromExternalService:  ", user);
+
   if (user) {
     // We *don't* process options (eg, profile) for update, but we do replace
     // the serviceData (eg, so that we keep an unexpired access token and
@@ -277,6 +308,70 @@ Accounts.updateOrCreateUserFromExternalService = function(
     user.services[serviceName] = serviceData;
     options.generateLoginToken = true;
     return Accounts.insertUserDoc(options, user);
+  }
+};
+
+///
+/// LINK USERS
+///
+
+// BOO - TODO handle linking a new password based account to an existing account
+Accounts.linkUserFromExternalService = function(
+  userId, serviceName, serviceData, options) {
+  options = _.clone(options || {});
+
+  if (serviceName === "password" || serviceName === "resume")
+    throw new Error(
+      "Can't use linkUserFromExternalService with internal service "
+        + serviceName);
+  if (!_.has(serviceData, 'id'))
+    throw new Error(
+      "Service data for service " + serviceName + " must include id");
+
+  // Look for a user with the appropriate service user id.
+  var selector = {};
+  var serviceIdKey = "services." + serviceName + ".id";
+
+  // XXX Temporary special case for Twitter. (Issue #629)
+  //   The serviceData.id will be a string representation of an integer.
+  //   We want it to match either a stored string or int representation.
+  //   This is to cater to earlier versions of Meteor storing twitter
+  //   user IDs in number form, and recent versions storing them as strings.
+  //   This can be removed once migration technology is in place, and twitter
+  //   users stored with integer IDs have been migrated to string IDs.
+  if (serviceName === "twitter" && !isNaN(serviceData.id)) {
+    selector["$or"] = [{},{}];
+    selector["$or"][0][serviceIdKey] = serviceData.id;
+    selector["$or"][1][serviceIdKey] = parseInt(serviceData.id, 10);
+  } else {
+    selector[serviceIdKey] = serviceData.id;
+  }
+
+  var user = Meteor.users.findOne({_id: userId});
+
+  if (user) {
+    // We *don't* process options (eg, profile) for update, but we do replace
+    // the serviceData (eg, so that we keep an unexpired access token and
+    // don't cache old email addresses in serviceData.email).
+    // XXX provide an onUpdateUser hook which would let apps update
+    //     the profile too
+    var stampedToken = Accounts._generateStampedLoginToken();
+    var setAttrs = {};
+    _.each(serviceData, function(value, key) {
+      setAttrs["services." + serviceName + "." + key] = value;
+    });
+
+    // XXX Maybe we should re-use the selector above and notice if the update
+    //     touches nothing?
+    Meteor.users.update(
+      user._id,
+      {$set: setAttrs,
+       $push: {'services.resume.loginTokens': stampedToken}});
+    return {token: stampedToken.token, id: user._id};
+  } else {
+    // BOO throw a real error
+    console.log('opposite of yay');
+    throw new Meteor.Error(90000, "You must be logged in as an existing user to link a 3rd party account.");
   }
 };
 
@@ -358,7 +453,7 @@ Meteor.default_server.onAutopublish(function () {
 
 // Publish all login service configuration fields other than secret.
 Meteor.publish("meteor.loginServiceConfiguration", function () {
-  return Accounts.loginServiceConfiguration.find({}, {fields: {secret: 0}});
+  return ServiceConfiguration.configurations.find({}, {fields: {secret: 0}});
 }, {is_auto: true}); // not techincally autopublish, but stops the warning.
 
 // Allow a one-time configuration for a login service. Modifications
@@ -371,9 +466,9 @@ Meteor.methods({
     // instead of ours).
     if (!Accounts[options.service])
       throw new Meteor.Error(403, "Service unknown");
-    if (Accounts.loginServiceConfiguration.findOne({service: options.service}))
+    if (ServiceConfiguration.configurations.findOne({service: options.service}))
       throw new Meteor.Error(403, "Service " + options.service + " already configured");
-    Accounts.loginServiceConfiguration.insert(options);
+    ServiceConfiguration.configurations.insert(options);
   }
 });
 

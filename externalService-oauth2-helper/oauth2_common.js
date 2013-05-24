@@ -1,1 +1,0 @@
-ExternalService.oauth2 = {};

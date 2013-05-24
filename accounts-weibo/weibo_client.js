@@ -1,25 +1,10 @@
-// XXX support options.requestPermissions as we do for Facebook, Google, Github
-Meteor.loginWithWeibo = function (options, callback) {
-  // support both (options, callback) and (callback).
-  if (!callback && typeof options === 'function') {
-    callback = options;
-    options = {};
-  }
+Meteor.loginWithWeibo = function(options, callback) {
+  var credentialRequestCompleteCallback = Accounts.oauth.credentialRequestCompleteHandler(callback);
+  Weibo.requestCredential(options, credentialRequestCompleteCallback);
+};
 
-  var config = Accounts.loginServiceConfiguration.findOne({service: 'weibo'});
-  if (!config) {
-    callback && callback(new Accounts.ConfigError("Service not configured"));
-    return;
-  }
-
-  var state = Random.id();
-  // XXX need to support configuring access_type and scope
-  var loginUrl =
-        'https://api.weibo.com/oauth2/authorize' +
-        '?response_type=code' +
-        '&client_id=' + config.clientId +
-        '&redirect_uri=' + Meteor.absoluteUrl('_oauth/weibo?close', {replaceLocalhost: true}) +
-        '&state=' + state;
-
-  ExternalService.oauth.initiateLogin(state, loginUrl, callback);
+Meteor.linkWithWeibo = function (options, callback) {
+	console.log("BOO requesting link");
+	var credentialRequestCompleteCallback = Accounts.oauth.linkRequestCompleteHandler(callback);
+	Weibo.requestCredential(options, credentialRequestCompleteCallback);
 };
