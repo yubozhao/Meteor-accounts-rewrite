@@ -4,7 +4,6 @@ Meteor.loginWithGoogle = function(options, callback) {
 };
 
 Meteor.linkWithGoogle = function (options, callback) {
-	console.log("BOO requesting link");
 	var credentialRequestCompleteCallback = Accounts.oauth.linkRequestCompleteHandler(callback);
 	Google.requestCredential(options, credentialRequestCompleteCallback);
 };

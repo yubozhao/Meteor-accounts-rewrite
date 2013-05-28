@@ -72,6 +72,7 @@ Meteor.methods({beginPasswordExchange: function (request) {
 Accounts.registerLoginHandler(function (options) {
   if (!options.srp)
     return undefined; // don't handle
+
   check(options.srp, {M: String});
 
   // we're always called from within a 'login' method, so this should
@@ -140,6 +141,7 @@ Accounts.registerLoginHandler(function (options) {
 
 // BOO
 Accounts.registerLinkHandler(function (userId, options) {
+  //BOO what is with options.password??
   if (!options.srp)
     return undefined; // don't handle
   

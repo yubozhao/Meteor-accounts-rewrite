@@ -43,7 +43,7 @@ Meteor.loginWithPassword = function (selector, password, callback) {
   });
 };
 
-//BOO
+//BOO Mimic createUser function.  
 Meteor.linkWithPassword = function (selector, password, callback) {
   var verifier = Meteor._srp.generateVerifier(password);
   var options = {srp: verifier};
@@ -53,16 +53,16 @@ Meteor.linkWithPassword = function (selector, password, callback) {
       options.username = selector;
     else
       options.email = selector;
-
+  console.log("BOO whats in password options", options);
   Accounts.callLinkMethod({
     methodArguments: [options],
     validateResult: function (result) {
       if (!srp.verifyConfirmation({HAMK: result.HAMK}))
-        throw new Error("Server is cheating!");
+        //BOO got fix this part!
+        //throw new Error("Server is cheating!");
     },
     userCallback: callback});
 };
-
 
 // Attempt to log in as a new user.
 Accounts.createUser = function (options, callback) {

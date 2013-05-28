@@ -40,7 +40,7 @@ Accounts.registerLoginHandler(function (options) {
     throw new Meteor.Error(Accounts.LoginCancelledError.numericError,
                            'No matching login attempt found');
   }
-  //BOO just change it here. getting credential here.  
+
   var result = Oauth.retrieveCredential(options.oauth.credentialToken);
   if (result instanceof Error)
     // We tried to login, but there was a fatal error. Report it back
@@ -51,7 +51,7 @@ Accounts.registerLoginHandler(function (options) {
 });
 
 // Listen to calls to `link` with an oauth option set. This is where
-// users actually get logged in to meteor via oauth.
+// users actually get linked in meteor via oauth.
 Accounts.registerLinkHandler(function (userId, options) {
   if (!options.oauth)
     return undefined; // don't handle
@@ -70,13 +70,12 @@ Accounts.registerLinkHandler(function (userId, options) {
     // request but does close the window. This seems unlikely.
     
 
-    // BOO THROW A DIFFERENT ERROR
-    throw new Meteor.Error(Accounts.LoginCancelledError.numericError,
+    throw new Meteor.Error(Accounts.LinkCancelledError.numericError,
                            'No matching link attempt found');
   }
-  //BOO just change it here. getting credential here.  
   var result = Oauth.retrieveCredential(options.oauth.credentialToken);
 
+  console.log("BOO lets check for result", result);
   if (result instanceof Error)
     // We tried to link, but there was a fatal error. Report it back
     // to the user.

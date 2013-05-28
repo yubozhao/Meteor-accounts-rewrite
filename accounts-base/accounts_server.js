@@ -60,7 +60,7 @@ var tryAllLoginHandlers = function (options) {
 
 ///
 /// LINK HANDLERS
-/// BOO
+/// BOO - mimic login handlers
 
 Accounts.registerLinkHandler = function(handler) {
   Accounts._linkHandlers.push(handler);
@@ -105,12 +105,14 @@ Meteor.methods({
   },
 
   link: function(options) {
-    console.log('called link with ', options);
     check(options, Object);
     var userId = Meteor.userId();
-    if(null == userId){
+    var user = Meteor.user();
+    //console.log("BOO inside link method, see user stuff", user);
+    if(userId == null){
       throw new Meteor.Error(90000, "You must be logged into an existing account to link a 3rd party service.");
     }
+    //BOO we probably have to find that user info then we can move to later stage for more related checking.
     var result = tryAllLinkHandlers(userId, options);
     if (result !== null)
       console.log("yay!");
@@ -354,6 +356,20 @@ Accounts.linkUserFromExternalService = function(
     // don't cache old email addresses in serviceData.email).
     // XXX provide an onUpdateUser hook which would let apps update
     //     the profile too
+    
+    //BOO
+    //if (user.services[] == serviceName); 
+    //  throw new Meteor.Error(90001, "cant have the same service link...yet");
+    _.each(user.services, function (value, key){
+      console.log("BOO key is", key);
+      if (key == serviceName) {
+        console.log("BOO throw an error");
+        throw new Meteor.Error(90001, "Can't add same service...yet ");
+        //we might have to write handlers for different services in order for them 
+        //to make sure they are not link with different accounts from same services. 
+      }
+    });
+
     var stampedToken = Accounts._generateStampedLoginToken();
     var setAttrs = {};
     _.each(serviceData, function(value, key) {

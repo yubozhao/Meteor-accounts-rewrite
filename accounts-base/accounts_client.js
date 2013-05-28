@@ -144,8 +144,7 @@ Accounts.callLoginMethod = function (options) {
 
   if (!options._suppressLoggingIn)
     Accounts._setLoggingIn(true);
-  //BOO find out what they call here
-  //console.log("BOO Meteor.apply with ", options);
+  
   Meteor.apply(
     options.methodName,
     options.methodArguments,
@@ -243,8 +242,7 @@ Accounts.callLinkMethod = function (options) {
 
   if (!options._suppressLoggingIn)
     Accounts._setLoggingIn(true);
-  //BOO find out what they call here
-  //console.log("BOO Meteor.apply with ", options);
+
   Meteor.apply(
     options.methodName,
     options.methodArguments,

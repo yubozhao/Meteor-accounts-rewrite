@@ -4,7 +4,6 @@ Meteor.loginWithWeibo = function(options, callback) {
 };
 
 Meteor.linkWithWeibo = function (options, callback) {
-	console.log("BOO requesting link");
 	var credentialRequestCompleteCallback = Accounts.oauth.linkRequestCompleteHandler(callback);
 	Weibo.requestCredential(options, credentialRequestCompleteCallback);
 };

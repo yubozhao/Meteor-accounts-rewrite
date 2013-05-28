@@ -4,7 +4,6 @@ Meteor.loginWithMeetup = function(options, callback) {
 };
 
 Meteor.linkWithMeetup = function (options, callback) {
-	console.log("BOO requesting link");
 	var credentialRequestCompleteCallback = Accounts.oauth.linkRequestCompleteHandler(callback);
 	Meetup.requestCredential(options, credentialRequestCompleteCallback);
 };
