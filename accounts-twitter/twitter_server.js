@@ -9,3 +9,8 @@ Accounts.addAutopublishFields({
   forLoggedInUser: autopublishedFields,
   forOtherUsers: autopublishedFields
 });
+
+Accounts.registerLinkCheckUpHandler("twitter", function(user, serviceData) {
+	console.log("BOO its inside twitter!", user, ' ', serviceData);
+	return undefined;
+});

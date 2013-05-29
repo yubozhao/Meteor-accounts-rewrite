@@ -15,3 +15,8 @@ Accounts.addAutopublishFields({
     _.without(Google.whitelistedFields, 'email', 'verified_email'),
     function (subfield) { return 'services.google.' + subfield; })
 });
+
+Accounts.registerLinkCheckUpHandler("google", function(user, serviceData) {
+    console.log("BOO its inside google!", user, ' ', serviceData);
+    return undefined;
+});

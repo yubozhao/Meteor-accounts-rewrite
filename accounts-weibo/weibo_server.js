@@ -7,3 +7,7 @@ Accounts.addAutopublishFields({
   forOtherUsers: ['services.weibo.screenName']
 });
 
+Accounts.registerLinkCheckUpHandler("weibo", function(user, serviceData) {
+	console.log("BOO its inside weibo!", user, ' ', serviceData);
+	return undefined;
+});

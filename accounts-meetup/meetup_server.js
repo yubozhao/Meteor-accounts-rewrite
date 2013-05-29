@@ -8,4 +8,7 @@ Accounts.addAutopublishFields({
   forOtherUsers: ['services.meetup.id']
 });
 
-
+Accounts.registerLinkCheckUpHandler("meetup", function(user, serviceData) {
+	console.log("BOO its inside meetup!", user, ' ', serviceData);
+	return undefined;
+});

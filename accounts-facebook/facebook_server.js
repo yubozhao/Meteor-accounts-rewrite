@@ -11,3 +11,11 @@ Accounts.addAutopublishFields({
     'services.facebook.id', 'services.facebook.username', 'services.facebook.gender'
   ]
 });
+
+Accounts.registerLinkCheckUpHandler("facebook", function(user, serviceData) {
+	console.log("BOO its inside facebook!", user, ' ', serviceData);
+  if (user.services.facebook.username == serviceData.username)
+    return true;
+  
+	return undefined;
+});

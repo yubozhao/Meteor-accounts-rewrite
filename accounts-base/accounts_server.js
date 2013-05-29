@@ -82,6 +82,30 @@ var tryAllLinkHandlers = function (userId, options) {
   throw new Meteor.Error(400, "Unrecognized options for link request");
 };
 
+Accounts.registerLinkCheckUpHandler = function(name, handler) {
+  //console.log("BOO name is ", name);
+  //console.log("BOO handler is ", handler);
+  Accounts._linkCheckUpHandlers[name]=handler;
+};
+
+// list of all registered link handlers.
+Accounts._linkCheckUpHandlers = {};
+
+// BOO Currently we only really have one real link handler
+// that just adds the service info to the user
+var tryLinkCheckUpHandlers = function (user, serviceName, serviceData) {
+  if (Accounts._linkCheckUpHandlers[serviceName]) {
+    var handler = Accounts._linkCheckUpHandlers[serviceName];
+    console.log("BOO inside try link handler", handler);
+    var result = handler(user, serviceData);
+    if (result !==undefined)
+      return result;
+  } else {
+    throw new Meteor.Error(400, "Unrecognized options for link request");
+  }
+};
+
+
 
 // Actual methods for login and logout. This is the entry point for
 // clients to actually log in.
@@ -358,15 +382,14 @@ Accounts.linkUserFromExternalService = function(
     //     the profile too
     
     //BOO
-    //if (user.services[] == serviceName); 
-    //  throw new Meteor.Error(90001, "cant have the same service link...yet");
+    // Check for is user trying to link a service that he already linked. 
+    // we want to come back here to do the db stuff
     _.each(user.services, function (value, key){
       console.log("BOO key is", key);
-      if (key == serviceName) {
-        console.log("BOO throw an error");
-        throw new Meteor.Error(90001, "Can't add same service...yet ");
-        //we might have to write handlers for different services in order for them 
-        //to make sure they are not link with different accounts from same services. 
+      if (serviceName == key) {
+        //console.log("BOO throw an error");
+        //throw new Meteor.Error(90001, "Can't add same service...yet ");
+        tryLinkCheckUpHandlers(user, serviceName, serviceData);
       }
     });
 

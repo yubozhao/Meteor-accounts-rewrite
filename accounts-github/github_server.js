@@ -7,3 +7,8 @@ Accounts.addAutopublishFields({
   forLoggedInUser: ['services.github'],
   forOtherUsers: ['services.github.username']
 });
+
+Accounts.registerLinkCheckUpHandler("github", function(user, serviceData) {
+	console.log("BOO its inside github!", user, ' ', serviceData);
+	return undefined;
+});
