@@ -131,8 +131,6 @@ Meteor.methods({
   link: function(options) {
     check(options, Object);
     var userId = Meteor.userId();
-    var user = Meteor.user();
-    //console.log("BOO inside link method, see user stuff", user);
     if(userId == null){
       throw new Meteor.Error(90000, "You must be logged into an existing account to link a 3rd party service.");
     }

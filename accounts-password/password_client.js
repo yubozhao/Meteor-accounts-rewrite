@@ -44,24 +44,20 @@ Meteor.loginWithPassword = function (selector, password, callback) {
 };
 
 //BOO Mimic createUser function.  
-Meteor.linkWithPassword = function (selector, password, callback) {
-  var verifier = Meteor._srp.generateVerifier(password);
-  var options = {srp: verifier};
+Meteor.linkWithPassword = function (options, callback) {
+  options = _.clone(options); // we'll be modifying options
 
-  if (typeof selector === 'string')
-    if (selector.indexOf('@') === -1)
-      options.username = selector;
-    else
-      options.email = selector;
-  console.log("BOO whats in password options", options);
+  if (!options.password)
+    throw new Error("Must set options.password");
+  var verifier = Meteor._srp.generateVerifier(options.password);
+  // strip old password, replacing with the verifier object
+  delete options.password;
+  options.srp = verifier;
+
   Accounts.callLinkMethod({
     methodArguments: [options],
-    validateResult: function (result) {
-      if (!srp.verifyConfirmation({HAMK: result.HAMK}))
-        //BOO got fix this part!
-        //throw new Error("Server is cheating!");
-    },
-    userCallback: callback});
+    userCallback: callback
+  });
 };
 
 // Attempt to log in as a new user.
@@ -74,7 +70,7 @@ Accounts.createUser = function (options, callback) {
   // strip old password, replacing with the verifier object
   delete options.password;
   options.srp = verifier;
-
+  
   Accounts.callLoginMethod({
     methodName: 'createUser',
     methodArguments: [options],

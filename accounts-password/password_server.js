@@ -141,7 +141,6 @@ Accounts.registerLoginHandler(function (options) {
 
 // BOO
 Accounts.registerLinkHandler(function (userId, options) {
-  //BOO what is with options.password??
   if (!options.srp)
     return undefined; // don't handle
   
@@ -151,6 +150,8 @@ Accounts.registerLinkHandler(function (userId, options) {
   // Was the user deleted since the start of this challenge?
   if (!user)
     throw new Meteor.Error(403, "User not found");
+  if (user.services.password)
+    throw new Meteor.Error(90002, "Password based service already exist!!");
 
   var updates = {
     $push: {'services.resume.loginTokens': stampedLoginToken}, 
@@ -165,7 +166,8 @@ Accounts.registerLinkHandler(function (userId, options) {
   }
 
   var stampedLoginToken = Accounts._generateStampedLoginToken();
-  Meteor.users.update( userId, updates );
+  Meteor.users.update(
+    user._id, {$push: {'services.resume.loginTokens': stampedLoginToken}});
 
   return {token: stampedLoginToken.token, id: userId };
 });
