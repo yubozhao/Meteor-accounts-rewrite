@@ -164,7 +164,8 @@ Accounts.registerLinkHandler(function (userId, options) {
   if (options.email) {
     updates.$push.emails = [{address: options.email, verified: false}];
   }
-
+  Meteor.users.update(user._id, updates);
+  
   var stampedLoginToken = Accounts._generateStampedLoginToken();
   Meteor.users.update(
     user._id, {$push: {'services.resume.loginTokens': stampedLoginToken}});
