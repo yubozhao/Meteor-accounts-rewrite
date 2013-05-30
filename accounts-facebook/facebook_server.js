@@ -11,15 +11,3 @@ Accounts.addAutopublishFields({
     'services.facebook.id', 'services.facebook.username', 'services.facebook.gender'
   ]
 });
-
-Accounts.registerLinkCheckUpHandler("facebook", function(user, serviceData) {
-	console.log("BOO its inside facebook!", user, ' ', serviceData);
-  if (user.services.facebook.id == serviceData.id) {
-    //BOO same user, we can update his info.
-    return true;
-  } else {
-    //BOO this should be how we handle the multiply accounts link to same Meteor user.
-  };
-
-	return undefined;
-});

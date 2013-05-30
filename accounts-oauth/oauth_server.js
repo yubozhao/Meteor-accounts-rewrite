@@ -75,7 +75,7 @@ Accounts.registerLinkHandler(function (userId, options) {
   }
   var result = Oauth.retrieveCredential(options.oauth.credentialToken);
 
-  console.log("BOO lets check for result", result);
+ // console.log("BOO lets check for result", result);
   if (result instanceof Error)
     // We tried to link, but there was a fatal error. Report it back
     // to the user.
