@@ -63,7 +63,7 @@ Meteor.methods({beginPasswordExchange: function (request) {
   // later.
   this._sessionData.srpChallenge =
     { userId: user._id, M: srp.M, HAMK: srp.HAMK };
-
+  console.log("BOO the challenge is ", challenge);
   return challenge;
 }});
 
@@ -72,7 +72,7 @@ Meteor.methods({beginPasswordExchange: function (request) {
 Accounts.registerLoginHandler(function (options) {
   if (!options.srp)
     return undefined; // don't handle
-
+  console.log("did meteror send us here? in srp", options);
   check(options.srp, {M: String});
 
   // we're always called from within a 'login' method, so this should
@@ -83,6 +83,7 @@ Accounts.registerLoginHandler(function (options) {
     throw new Meteor.Error(403, "Incorrect password");
   // Only can use challenges once.
   delete currentInvocation._sessionData.srpChallenge;
+  console.log("BOO the serialized is ", serialized);
 
   var userId = serialized.userId;
   var user = Meteor.users.findOne(userId);
@@ -162,7 +163,7 @@ Accounts.registerLinkHandler(function (userId, options) {
     updates.$set.username = options.username;
   }
   if (options.email) {
-    updates.$push.emails = [{address: options.email, verified: false}];
+    updates.$push.emails = {address: options.email, verified: false};
   }
   Meteor.users.update(user._id, updates);
   

@@ -19,6 +19,7 @@ Meteor.loginWithPassword = function (selector, password, callback) {
 
   request.user = selector;
 
+  console.log("BOO before exchange, request is", request);
   // Normally, we only set Meteor.loggingIn() to true within
   // Accounts.callLoginMethod, but we'd also like it to be true during the
   // password exchange. So we set it to true here, and clear it on error; in
@@ -43,10 +44,12 @@ Meteor.loginWithPassword = function (selector, password, callback) {
   });
 };
 
-//BOO Mimic createUser function.  
+//BOO Mimic createUser/loginWithPassword function.  
 Meteor.linkWithPassword = function (options, callback) {
   options = _.clone(options); // we'll be modifying options
 
+  Accounts._setLoggingIn(true);
+  
   if (!options.password)
     throw new Error("Must set options.password");
   var verifier = Meteor._srp.generateVerifier(options.password);

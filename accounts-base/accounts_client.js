@@ -18,6 +18,7 @@ Accounts._setLoggingIn = function (x) {
     loggingInDeps.changed();
   }
 };
+//BOO need to get link stuff in here as well!
 Meteor.loggingIn = function () {
   loggingInDeps.depend();
   return loggingIn;
