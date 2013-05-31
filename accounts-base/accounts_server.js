@@ -115,6 +115,20 @@ Meteor.methods({
     if (result !== null)
       console.log("yay!");
     return result;
+  },
+
+  unlink: function(options){
+    check(options, Object);
+    // BOO check for serviceName here
+    var userId = Meteor.userId()
+      , serviceKey = "services." + options.serviceName
+      , updates = { $unset: {} };
+      updates.$unset[serviceKey] = '';
+
+      console.log('updates', updates);
+
+    Meteor.users.update(userId, updates); // throws an exception on failure
+    return true;
   }
 });
 
