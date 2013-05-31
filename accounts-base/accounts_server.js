@@ -348,8 +348,8 @@ Accounts.linkUserFromExternalService = function(
 
   var user = Meteor.users.findOne({_id: userId});
   var possibleUser = Meteor.users.findOne(selector);
-  console.log("BOO possibleUser is ", possibleUser._id);
-  console.log("BOO userID is ", user._id);
+  //console.log("BOO possibleUser is ", possibleUser._id);
+  //console.log("BOO userID is ", user._id);
 
   if (user) {
     // We *don't* process options (eg, profile) for update, but we do replace
@@ -358,7 +358,7 @@ Accounts.linkUserFromExternalService = function(
     // XXX provide an onUpdateUser hook which would let apps update
     //     the profile too
 
-    if (possibleUser._id !== userId) {
+    if (possibleUser && possibleUser._id !== userId) {
       console.log("BOO it should throw an error here that stopd link with already linked account");
       throw new Meteor.Error(90003, "This account already link with some other user!");
     };
@@ -372,7 +372,7 @@ Accounts.linkUserFromExternalService = function(
         //console.log("BOO trying to adding same services.", user.services[key].id);
         //throw new Meteor.Error(90001, "Can't add same service...yet "); 
         //console.log("BOO going to add service id", serviceData.id);  
-        if (user.services[key].id == serviceData.id) {
+        if (user.services[key].id !== serviceData.id) {
           throw new Meteor.Meteor.Error(90004, "Trying to add same services but different account!");
         };      
       };
