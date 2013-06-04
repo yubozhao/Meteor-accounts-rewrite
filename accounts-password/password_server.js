@@ -159,10 +159,10 @@ Accounts.registerLinkHandler(function (userId, options) {
   if (!user)
     throw new Meteor.Error(90000, "You must be logged into an existing account to link a 3rd party service.");
   if (possibleUser && user._id !== possibleUser._id) {
-    throw new Meteor.Meteor.Error(90001 "Another user already exist with this service!");
+    throw new Meteor.Meteor.Error(90001, "Another user already exist with this service!");
   }
   if (user.services.password)
-    throw new Meteor.Error(90002 "attempt link service already exist");
+    throw new Meteor.Error(90002, "attempt link service already exist");
 
   var updates = {
     $push: {'services.resume.loginTokens': stampedLoginToken}, 

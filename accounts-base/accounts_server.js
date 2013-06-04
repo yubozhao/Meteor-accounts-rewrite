@@ -370,13 +370,13 @@ Accounts.linkUserFromExternalService = function(
     //     the profile too
 
     if (possibleUser && possibleUser._id !== userId) {
-      throw new Meteor.Error(90001 "Another user already exist with this service!");
+      throw new Meteor.Error(90001, "Another user already exist with this service!");
     };
 
     _.each(user.services, function (value, key){
       if (serviceName == key) {
         if (user.services[key].id !== serviceData.id) {
-          throw new Meteor.Meteor.Error(90002 "attempt link service already exist");
+          throw new Meteor.Meteor.Error(90002, "attempt link service already exist");
         };      
       };
     });
