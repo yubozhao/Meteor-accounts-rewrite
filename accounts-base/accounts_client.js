@@ -18,7 +18,7 @@ Accounts._setLoggingIn = function (x) {
     loggingInDeps.changed();
   }
 };
-//BOO need to get link stuff in here as well!
+
 Meteor.loggingIn = function () {
   loggingInDeps.depend();
   return loggingIn;
@@ -154,7 +154,12 @@ Accounts.callLoginMethod = function (options) {
 };
 
 
-//BOO
+// BOO LINK METHODS
+// 
+// Call a link method on the server.
+// A link method is a method which on success calls `this.setUserId(id)` on
+// the server and returns an object with fields 'id' (containing the user id)
+// and 'token' (containing a resume token).
 //
 Accounts.callLinkMethod = function (options) {
   options = _.extend({
@@ -250,8 +255,6 @@ Accounts.callLinkMethod = function (options) {
     {wait: true, onResultReceived: onResultReceived},
     loggedInAndDataReadyCallback);
 };
-
-//end BOO
 
 Accounts._makeClientLoggedOut = function() {
   Accounts._unstoreLoginToken();

@@ -63,7 +63,6 @@ Meteor.methods({beginPasswordExchange: function (request) {
   // later.
   this._sessionData.srpChallenge =
     { userId: user._id, M: srp.M, HAMK: srp.HAMK };
-  console.log("BOO the challenge is ", challenge);
   return challenge;
 }});
 
@@ -72,7 +71,6 @@ Meteor.methods({beginPasswordExchange: function (request) {
 Accounts.registerLoginHandler(function (options) {
   if (!options.srp)
     return undefined; // don't handle
-  console.log("did meteror send us here? in srp", options);
   check(options.srp, {M: String});
 
   // we're always called from within a 'login' method, so this should
@@ -83,7 +81,6 @@ Accounts.registerLoginHandler(function (options) {
     throw new Meteor.Error(403, "Incorrect password");
   // Only can use challenges once.
   delete currentInvocation._sessionData.srpChallenge;
-  console.log("BOO the serialized is ", serialized);
 
   var userId = serialized.userId;
   var user = Meteor.users.findOne(userId);
@@ -142,22 +139,11 @@ Accounts.registerLoginHandler(function (options) {
 
 // BOO
 Accounts.registerLinkHandler(function (userId, options) {
+  var possibleUser = {};
   if (!options.srp)
     return undefined; // don't handle
   
   check(options, {username: Match.Optional(String), email: Match.Optional(String), srp: Match.Optional(Meteor._srp.matchVerifier)});
-
-  var user = Meteor.users.findOne(userId);
-  // Was the user deleted since the start of this challenge?
-  if (!user)
-    throw new Meteor.Error(403, "User not found");
-  if (user.services.password)
-    throw new Meteor.Error(90002, "Password based service already exist!!");
-
-  var updates = {
-    $push: {'services.resume.loginTokens': stampedLoginToken}, 
-    $set: {'services.password': {srp: options.srp } }
-  };
 
   if (options.username) {
     updates.$set.username = options.username;
@@ -165,6 +151,24 @@ Accounts.registerLinkHandler(function (userId, options) {
   if (options.email) {
     updates.$push.emails = {address: options.email, verified: false};
   }
+
+  //BOO better way to handle this for checking duplicated user
+  possibleUser = Meteor.users.findOne({"emails.address":options.email});
+  var user = Meteor.users.findOne(userId);
+
+  if (!user)
+    throw new Meteor.Error(90000, "You must be logged into an existing account to link a 3rd party service.");
+  if (possibleUser && user._id !== possibleUser._id) {
+    throw new Meteor.Meteor.Error(90001 "Another user already exist with this service!");
+  }
+  if (user.services.password)
+    throw new Meteor.Error(90002 "attempt link service already exist");
+
+  var updates = {
+    $push: {'services.resume.loginTokens': stampedLoginToken}, 
+    $set: {'services.password': {srp: options.srp } }
+  };
+
   Meteor.users.update(user._id, updates);
   
   var stampedLoginToken = Accounts._generateStampedLoginToken();

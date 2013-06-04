@@ -69,8 +69,6 @@ Accounts.registerLinkHandler = function(handler) {
 // list of all registered link handlers.
 Accounts._linkHandlers = [];
 
-// BOO Currently we only really have one real link handler
-// that just adds the service info to the user
 var tryAllLinkHandlers = function (userId, options) {
   for (var i = 0; i < Accounts._linkHandlers.length; ++i) {
     var handler = Accounts._linkHandlers[i];
@@ -104,22 +102,22 @@ Meteor.methods({
     this.setUserId(null);
   },
 
+  //BOO 
   link: function(options) {
     check(options, Object);
     var userId = Meteor.userId();
     if(userId == null){
       throw new Meteor.Error(90000, "You must be logged into an existing account to link a 3rd party service.");
     }
-    //BOO we probably have to find that user info then we can move to later stage for more related checking.
     var result = tryAllLinkHandlers(userId, options);
     if (result !== null)
       console.log("yay!");
     return result;
   },
 
+  //BOO 
   unlink: function(options){
     check(options, Object);
-    // BOO check for serviceName here
     var userId = Meteor.userId()
       , serviceKey = "services." + options.serviceName
       , updates = { $unset: {} };
@@ -327,8 +325,9 @@ Accounts.updateOrCreateUserFromExternalService = function(
 ///
 /// LINK USERS
 ///
+/// link external service's account to current Meteor user.
 
-// BOO - TODO handle linking a new password based account to an existing account
+//BOO 
 Accounts.linkUserFromExternalService = function(
   userId, serviceName, serviceData, options) {
   options = _.clone(options || {});
@@ -362,8 +361,6 @@ Accounts.linkUserFromExternalService = function(
 
   var user = Meteor.users.findOne({_id: userId});
   var possibleUser = Meteor.users.findOne(selector);
-  //console.log("BOO possibleUser is ", possibleUser._id);
-  //console.log("BOO userID is ", user._id);
 
   if (user) {
     // We *don't* process options (eg, profile) for update, but we do replace
@@ -373,25 +370,18 @@ Accounts.linkUserFromExternalService = function(
     //     the profile too
 
     if (possibleUser && possibleUser._id !== userId) {
-      console.log("BOO it should throw an error here that stopd link with already linked account");
-      throw new Meteor.Error(90003, "This account already link with some other user!");
+      throw new Meteor.Error(90001 "Another user already exist with this service!");
     };
 
-    //BOO
-    // Check for is user trying to link a service that he already linked. 
-    // we want to come back here to do the db stuff
     _.each(user.services, function (value, key){
-      //console.log("BOO key is", key);
       if (serviceName == key) {
-        //console.log("BOO trying to adding same services.", user.services[key].id);
-        //throw new Meteor.Error(90001, "Can't add same service...yet "); 
-        //console.log("BOO going to add service id", serviceData.id);  
         if (user.services[key].id !== serviceData.id) {
-          throw new Meteor.Meteor.Error(90004, "Trying to add same services but different account!");
+          throw new Meteor.Meteor.Error(90002 "attempt link service already exist");
         };      
       };
     });
 
+    //BOO do we need to create a new set of resume token? would that put security in danger? somehow?
     var stampedToken = Accounts._generateStampedLoginToken();
     var setAttrs = {};
     _.each(serviceData, function(value, key) {
@@ -406,9 +396,7 @@ Accounts.linkUserFromExternalService = function(
        $push: {'services.resume.loginTokens': stampedToken}});
     return {token: stampedToken.token, id: user._id};
   } else {
-    // BOO throw a real error
-    console.log('opposite of yay');
-    throw new Meteor.Error(90000, "You must be logged in as an existing user to link a 3rd party account.");
+    throw new Meteor.Error(90000, "You must be logged into an existing account to link a 3rd party service.");
   }
 };
 
