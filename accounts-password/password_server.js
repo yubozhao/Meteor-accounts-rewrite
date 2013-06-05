@@ -171,11 +171,7 @@ Accounts.registerLinkHandler(function (userId, options) {
 
   Meteor.users.update(user._id, updates);
   
-  var stampedLoginToken = Accounts._generateStampedLoginToken();
-  Meteor.users.update(
-    user._id, {$push: {'services.resume.loginTokens': stampedLoginToken}});
-
-  return {token: stampedLoginToken.token, id: userId };
+  return {id: userId };
 });
 
 ///

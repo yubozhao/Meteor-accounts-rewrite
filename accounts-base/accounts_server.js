@@ -110,8 +110,7 @@ Meteor.methods({
       throw new Meteor.Error(90000, "You must be logged into an existing account to link a 3rd party service.");
     }
     var result = tryAllLinkHandlers(userId, options);
-    if (result !== null)
-      console.log("yay!");
+
     return result;
   },
 
@@ -381,8 +380,6 @@ Accounts.linkUserFromExternalService = function(
       };
     });
 
-    //BOO do we need to create a new set of resume token? would that put security in danger? somehow?
-    var stampedToken = Accounts._generateStampedLoginToken();
     var setAttrs = {};
     _.each(serviceData, function(value, key) {
       setAttrs["services." + serviceName + "." + key] = value;
@@ -392,9 +389,8 @@ Accounts.linkUserFromExternalService = function(
     //     touches nothing?
     Meteor.users.update(
       user._id,
-      {$set: setAttrs,
-       $push: {'services.resume.loginTokens': stampedToken}});
-    return {token: stampedToken.token, id: user._id};
+      {$set: setAttrs});
+    return {id: user._id};
   } else {
     throw new Meteor.Error(90000, "You must be logged into an existing account to link a 3rd party service.");
   }
