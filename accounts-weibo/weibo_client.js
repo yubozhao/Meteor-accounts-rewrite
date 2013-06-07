@@ -13,7 +13,7 @@ Meteor.unlinkWithWeibo = function (options, callback) {
 	options.serviceName = "Weibo";
 	Meteor.call("unlink", options, function unlinkWithWeiboCallback(err, result){
 		if(callback){
-			callback(result);
+			callback(err, result);
 		}
 	});
 };

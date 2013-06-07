@@ -305,4 +305,3 @@ if (typeof Handlebars !== 'undefined') {
     return Meteor.loggingIn();
   });
 }
-

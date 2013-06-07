@@ -13,7 +13,7 @@ Meteor.unlinkWithGoogle = function (options, callback) {
 	options.serviceName = "google";
 	Meteor.call("unlink", options, function unlinkWithGoogleCallback(err, result){
 		if(callback){
-			callback(result);
+			callback(err, result);
 		}
 	});
 };

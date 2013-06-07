@@ -13,7 +13,7 @@ Meteor.unlinkWithMeetup = function (options, callback) {
 	options.serviceName = "meetup";
 	Meteor.call("unlink", options, function unlinkWithMeetupCallback(err, result){
 		if(callback){
-			callback(result);
+			callback(err, result);
 		}
 	});
 };

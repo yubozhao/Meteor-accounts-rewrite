@@ -117,20 +117,29 @@ Meteor.methods({
   //BOO 
   unlink: function(options){
     check(options, Object);
-    var userId = Meteor.userId()
-      , serviceKey = "services." + options.serviceName
+    var serviceKey = "services." + options.serviceName
       , updates = { $unset: {} };
       updates.$unset[serviceKey] = '';
 
-    if (userId == null) {
+    var user = Meteor.user();
+    if (!user) {
       throw new Meteor.Error(90003, "You must login to unlink a service.");
     };
     if (options.serviceName == "password") {
       throw new Meteor.Error(90004, "You can't unlink password service");
     };
-    //BOO need write for unable to remove only service.
+    if (!user.services[options.serviceName]) {
+      throw new Meteor.Error(90005, "You can't unlink a non-existing service.");
+    };
 
-    Meteor.users.update(userId, updates); 
+    //BOO STUPID WAY TO WRIT THIS THING! NEED TO FIX IT
+    var count = _.keys(user.services);
+
+    if(count.length <= 2) {
+      throw new Meteor.Error(90006, "You can't unlink the only service.");
+    }
+
+    Meteor.users.update(user._id, updates); 
     return true;
   }
 });

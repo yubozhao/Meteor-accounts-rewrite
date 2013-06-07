@@ -12,8 +12,8 @@ Meteor.unlinkWithFacebook = function (options, callback) {
 	options = options || {};
 	options.serviceName = "facebook";
 	Meteor.call("unlink", options, function unlinkWithFacebookCallback(err, result){
-		if(callback){
-			callback(result);
+		if (callback){
+			callback(err, result);
 		}
 	});
 };

@@ -13,7 +13,7 @@ Meteor.unlinkWithGithub = function (options, callback) {
 	options.serviceName = "github";
 	Meteor.call("unlink", options, function unlinkWithGithubCallback(err, result){
 		if(callback){
-			callback(result);
+			callback(err, result);
 		}
 	});
 };

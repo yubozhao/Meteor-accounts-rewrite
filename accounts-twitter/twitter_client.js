@@ -13,7 +13,7 @@ Meteor.unlinkWithTwitter = function (options, callback) {
 	options.serviceName = "twitter";
 	Meteor.call("unlink", options, function unlinkWithTwitterCallback(err, result){
 		if(callback){
-			callback(result);
+			callback(err, result);
 		}
 	});
 };
