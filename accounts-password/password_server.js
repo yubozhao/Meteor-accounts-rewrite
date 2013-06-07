@@ -139,22 +139,14 @@ Accounts.registerLoginHandler(function (options) {
 
 // BOO
 Accounts.registerLinkHandler(function (userId, options) {
-  var possibleUser = {};
   if (!options.srp)
-    return undefined; // don't handle
-  
-  check(options, {username: Match.Optional(String), email: Match.Optional(String), srp: Match.Optional(Meteor._srp.matchVerifier)});
+    return undefined; // don't handle
+  
+  check(options, {username: Match.Optional(String), email: Match.Optional(String), srp: Match.Optional(Meteor._srp.matchVerifier)});
 
-  if (options.username) {
-    updates.$set.username = options.username;
-  }
-  if (options.email) {
-    updates.$push.emails = {address: options.email, verified: false};
-  }
-
-  //BOO better way to handle this for checking duplicated user
-  possibleUser = Meteor.users.findOne({"emails.address":options.email});
   var user = Meteor.users.findOne(userId);
+  //BOO better way to handle this for checking duplicated user
+  var possibleUser = Meteor.users.findOne({"emails.address":options.email});
 
   if (!user)
     throw new Meteor.Error(90000, "You must be logged into an existing account to link a 3rd party service.");
@@ -164,14 +156,20 @@ Accounts.registerLinkHandler(function (userId, options) {
   if (user.services.password)
     throw new Meteor.Error(90002, "attempt link service already exist");
 
-  var updates = {
-    $push: {'services.resume.loginTokens': stampedLoginToken}, 
-    $set: {'services.password': {srp: options.srp } }
-  };
+  var updates = {
+    $push: {}, 
+    $set: {'services.password': {srp: options.srp } }
+  };
 
-  Meteor.users.update(user._id, updates);
-  
-  return {id: userId };
+  if (options.username) {
+    updates.$set.username = options.username;
+  }
+  if (options.email) {
+    updates.$push.emails = {address: options.email, verified: false};
+  }
+  Meteor.users.update(user._id, updates);
+
+  return {id: userId};
 });
 
 ///

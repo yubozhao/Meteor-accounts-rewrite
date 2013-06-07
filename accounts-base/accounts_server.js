@@ -122,9 +122,15 @@ Meteor.methods({
       , updates = { $unset: {} };
       updates.$unset[serviceKey] = '';
 
-      console.log('updates', updates);
+    if (userId == null) {
+      throw new Meteor.Error(90003, "You must login to unlink a service.");
+    };
+    if (options.serviceName == "password") {
+      throw new Meteor.Error(90004, "You can't unlink password service");
+    };
+    //BOO need write for unable to remove only service.
 
-    Meteor.users.update(userId, updates); // throws an exception on failure
+    Meteor.users.update(userId, updates); 
     return true;
   }
 });
